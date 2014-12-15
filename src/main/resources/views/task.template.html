@@ -1,0 +1,14 @@
+<div class="form_item_block">
+  <label>Notification type:<span class="asterisk">*</span></label>
+  <select ng-model="NotificationType" ng-required="true">
+    <option value="success" selected="selected">Success</option>
+    <option value="failure">Failure</option>
+    <option value="other">Other</option>
+  </select>
+</div>
+  <div class="form_item_block">
+    <label>Notification message (leave blank for default):</label>
+<input type="text" ng-model="HipchatMessage">
+    </input>
+    <span class="form_error" ng-show="GOINPUTNAME[HipchatMessage].$error.server">{{ GOINPUTNAME[HipchatMessage].$error.server }}</span>
+</div>

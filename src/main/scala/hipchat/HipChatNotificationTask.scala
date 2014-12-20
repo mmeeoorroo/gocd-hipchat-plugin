@@ -13,6 +13,7 @@ class HipChatNotificationTask extends Task {
     val config = new TaskConfig()
     config.addProperty(NOTIFICATION_TYPE).withDefault("other")
     config.addProperty(MESSAGE)
+    config.addProperty(ROOM).withDefault("DevTools") //todo: pull room list from server, allow configuration of default
     config
   }
 
@@ -36,6 +37,9 @@ class HipChatNotificationTask extends Task {
     val msg = Option(configuration.getValue(MESSAGE))
     msg.filter(_.length > 10000).foreach(_ => result.addError(new ValidationError(MESSAGE, "Message must be less than 10k chars")))
 
+    val room = Option(configuration.getValue(ROOM))
+    room.filter(_.trim.isEmpty).foreach(_ => result.addError(new ValidationError(ROOM, "Room cannot be empty")))
+
     result
   }
 
@@ -44,4 +48,5 @@ class HipChatNotificationTask extends Task {
 object HipChatNotificationTask {
   val NOTIFICATION_TYPE = "NotificationType"
   val MESSAGE = "HipchatMessage"
+  val ROOM = "HipchatRoom"
 }

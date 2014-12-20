@@ -24,3 +24,5 @@ libraryDependencies ++=  Seq(
   "org.json4s" %% "json4s-native" % "3.2.11" exclude("org.scala-lang", "scalap"))
 
 scalacOptions += "-target:jvm-1.6"
+
+libraryDependencies += "org.specs2" %% "specs2" % "2.4.2" % "test"

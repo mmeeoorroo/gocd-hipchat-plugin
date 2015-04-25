@@ -1,0 +1,12 @@
+branches:
+  only:
+    - master
+scala:
+  - 2.10.4
+jdk:
+  - openjdk7
+cache:
+  directories:
+    - ~/.ivy2
+  apt: true
+sbt_args: -Dsbt.log.noformat=true -sbt-dir ~/.sbt

@@ -1,4 +1,4 @@
-GoCD Hipchat Notification Plugin
+GoCD Hipchat Notification Plugin [![Build Status](https://travis-ci.org/PagerDuty/gocd-hipchat-plugin.svg?branch=master)](https://travis-ci.org/PagerDuty/gocd-hipchat-plugin)
 ================================
 
 To install:

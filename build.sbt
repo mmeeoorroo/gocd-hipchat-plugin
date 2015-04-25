@@ -15,14 +15,15 @@ artifactName := { (sv: ScalaVersion, module: ModuleID, artifact: Artifact) =>
 
 assemblyJarName in assembly := name.value + ".jar"
 
-libraryDependencies += "com.thoughtworks.go" %  "go-plugin-api" % "current"  % "provided" from "http://www.thoughtworks.com/products/docs/go/current/help/resources/go-plugin-api-current.jar"
 
 scalariformSettings
 
-libraryDependencies ++=  Seq(
+libraryDependencies ++= Seq(
+  "com.thoughtworks.go" %%  "go-plugin-api" % "current"  % "provided" from "http://www.thoughtworks.com/products/docs/go/current/help/resources/go-plugin-api-current.jar",
   "org.scalaj" %% "scalaj-http" % "1.0.1",
-  "org.json4s" %% "json4s-native" % "3.2.11" exclude("org.scala-lang", "scalap"))
+  "org.json4s" %% "json4s-native" % "3.2.11" exclude("org.scala-lang", "scalap")
+)
 
-scalacOptions += "-target:jvm-1.6"
+scalacOptions += "-target:jvm-1.7"
 
 libraryDependencies += "org.specs2" %% "specs2" % "2.4.2" % "test"

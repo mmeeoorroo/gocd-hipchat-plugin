@@ -4,7 +4,7 @@ version := "1.0"
 
 scalaVersion := "2.10.4"
 
-val goVersion = "14.1.0"
+val goVersion = "14.4.0"
 
 packageOptions in (Compile, packageBin) +=
   Package.ManifestAttributes( "Go-Version" -> goVersion )
@@ -19,9 +19,12 @@ assemblyJarName in assembly := name.value + ".jar"
 scalariformSettings
 
 libraryDependencies ++= Seq(
-  "com.thoughtworks.go" %%  "go-plugin-api" % "current"  % "provided" from "http://www.thoughtworks.com/products/docs/go/current/help/resources/go-plugin-api-current.jar",
+  "org.scala-lang" % "scala-compiler" % scalaVersion.value,
+  "org.scala-lang" % "scala-library" % scalaVersion.value,
+  "org.scala-lang" % "scala-reflect" % scalaVersion.value,
   "org.scalaj" %% "scalaj-http" % "1.0.1",
-  "org.json4s" %% "json4s-native" % "3.2.11" exclude("org.scala-lang", "scalap")
+  "org.json4s" %% "json4s-native" % "3.2.11" exclude("org.scala-lang", "scalap"),
+  "com.thoughtworks.go" %%  "go-plugin-api" % "current"  % "provided" from "https://bintray.com/artifact/download/gocd/gocd/go-plugin-api-14.4.0.jar"
 )
 
 scalacOptions += "-target:jvm-1.7"

@@ -10,6 +10,24 @@ import scala.util.Try
 import scalaj.http._
 import collection.JavaConverters._
 
+object HipChatNotificationTaskExecutor {
+  val BASE_URL = "GO_BASE_URL"
+  val PIPELINE_NAME = "GO_PIPELINE_NAME"
+  val BUILD_NUMBER = "GO_PIPELINE_COUNTER"
+  val SERVER_URL = "GO_SERVER_URL"
+  val STAGE_NAME = "GO_STAGE_NAME"
+  val STAGE_NUMBER = "GO_STAGE_COUNTER"
+
+  def getToken() = Try(Source.fromURL(getClass.getResource("/token.txt")).getLines.toList(0)).getOrElse(throw new FileNotFoundException("HipChat token not found"))
+
+  def replaceEnvVars(msg: String, vars: Map[String, String]): String = {
+    val regexes = vars.collect { case (varName, value) => ((raw"\$$\{?" + varName + raw"\}?").r, value) }
+    regexes.foldLeft(msg) { (line, regexAndReplacement) =>
+      regexAndReplacement._1.replaceAllIn(line, regexAndReplacement._2)
+    }
+  }
+}
+
 class HipChatNotificationTaskExecutor extends TaskExecutor {
   import HipChatNotificationTaskExecutor._
 
@@ -69,7 +87,6 @@ class HipChatNotificationTaskExecutor extends TaskExecutor {
         case _ =>
           ("message" -> replaceEnvVars(msg.getOrElse(defaultOther), environmentVars)) ~
             ("message_format" -> "text")
-
       }
     }
 
@@ -83,26 +100,6 @@ class HipChatNotificationTaskExecutor extends TaskExecutor {
       ExecutionResult.success("Hipchat notified")
     } else {
       ExecutionResult.failure(s"Hipchat notification failed (${hipchat.code}): ${hipchat.body}")
-    }
-
-  }
-
-}
-
-object HipChatNotificationTaskExecutor {
-  val BASE_URL = "GO_BASE_URL"
-  val PIPELINE_NAME = "GO_PIPELINE_NAME"
-  val BUILD_NUMBER = "GO_PIPELINE_COUNTER"
-  val SERVER_URL = "GO_SERVER_URL"
-  val STAGE_NAME = "GO_STAGE_NAME"
-  val STAGE_NUMBER = "GO_STAGE_COUNTER"
-
-  def getToken() = Try(Source.fromURL(getClass.getResource("/token.txt")).getLines.toList(0)).getOrElse(throw new FileNotFoundException("HipChat token not found"))
-
-  def replaceEnvVars(msg: String, vars: Map[String, String]): String = {
-    val regexes = vars.collect { case (varName, value) => ((raw"\$$\{?" + varName + raw"\}?").r, value) }
-    regexes.foldLeft(msg) { (line, regexAndReplacement) =>
-      regexAndReplacement._1.replaceAllIn(line, regexAndReplacement._2)
     }
   }
 }

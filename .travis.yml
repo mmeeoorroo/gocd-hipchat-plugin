@@ -10,4 +10,4 @@ cache:
   directories:
     - ~/.ivy2
   apt: true
-sbt_args: -Dsbt.log.noformat=true -sbt-dir ~/.sbt
+sbt_args: -Dsbt.log.noformat=true

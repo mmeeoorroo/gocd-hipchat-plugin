@@ -18,8 +18,8 @@
 <go-plugin id="hipchat.notification" version="1">
     <about>
         <name>Hipchat Notification</name>
-        <version>1.0</version>
-        <target-go-version>14.1.0</target-go-version>
+        <version>1.1</version>
+        <target-go-version>14.4.0</target-go-version>
         <description>
            Task plugin that notifies Hipchat
         </description>

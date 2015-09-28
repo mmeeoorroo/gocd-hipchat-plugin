@@ -1,6 +1,8 @@
 GoCD Hipchat Notification Plugin [![Build Status](https://travis-ci.org/PagerDuty/gocd-hipchat-plugin.svg?branch=master)](https://travis-ci.org/PagerDuty/gocd-hipchat-plugin)
 ================================
 
+** This software is no longer actively being maintained by PagerDuty.  We've switched over to Slack, and can no longer easily develop for this plugin.  If you want to take over ownership, please email opensource@pagerduty.com. **
+
 To install:
 
 * Add your hipchat token to `src/main/resources/token.txt`

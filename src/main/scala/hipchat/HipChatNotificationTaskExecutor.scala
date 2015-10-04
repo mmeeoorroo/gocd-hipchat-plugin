@@ -45,7 +45,9 @@ class HipChatNotificationTaskExecutor extends TaskExecutor {
     //todo: fail sbt build if not found
     val token = getToken()
 
-    val roomName = Option(taskConfig.getValue(HipChatNotificationTask.ROOM)).filterNot(_.trim.isEmpty).getOrElse(throw new Exception("HipChat room not found"))
+    val systemEnvironmentVars = taskContext.environment.asMap.asScala.toMap
+
+    val roomName = replaceEnvVars(Option(taskConfig.getValue(HipChatNotificationTask.ROOM)).filterNot(_.trim.isEmpty), systemEnvironmentVars).getOrElse(throw new Exception("HipChat room not found"))
     val msgFormat = Option(taskConfig.getValue(HipChatNotificationTask.MESSAGE)).filterNot(_.trim.isEmpty).getOrElse("text")
 
     val buildUrl: Option[String] = {
@@ -60,8 +62,6 @@ class HipChatNotificationTaskExecutor extends TaskExecutor {
         s"${baseUrl}go/pipelines/$pipelineName/$buildNumber/$stageName/$stageNumber"
       })
     }
-
-    val systemEnvironmentVars = taskContext.environment.asMap.asScala.toMap
 
     val environmentVars = buildUrl.map { url =>
       systemEnvironmentVars.updated("BUILD_URL", url)

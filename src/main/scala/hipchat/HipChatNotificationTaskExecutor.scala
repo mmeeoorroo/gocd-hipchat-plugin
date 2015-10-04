@@ -48,7 +48,7 @@ class HipChatNotificationTaskExecutor extends TaskExecutor {
     val systemEnvironmentVars = taskContext.environment.asMap.asScala.toMap
 
     val roomName = replaceEnvVars(Option(taskConfig.getValue(HipChatNotificationTask.ROOM)).filterNot(_.trim.isEmpty), systemEnvironmentVars).getOrElse(throw new Exception("HipChat room not found"))
-    val msgFormat = Option(taskConfig.getValue(HipChatNotificationTask.MESSAGE)).filterNot(_.trim.isEmpty).getOrElse("text")
+    val msgFormat = Option(taskConfig.getValue(HipChatNotificationTask.MESSAGE_FORMAT)).filterNot(_.trim.isEmpty).getOrElse("text")
 
     val buildUrl: Option[String] = {
       val envVars = taskContext.environment.asMap.asScala

@@ -17,3 +17,10 @@
   <input type="text" ng-model="HipchatRoom"/>
   <span class="form_error" ng-show="GOINPUTNAME[HipchatRoom].$error.server">{{ GOINPUTNAME[HipchatRoom].$error.server }}</span>
 </div>
+<div class="form_item_block">
+  <label>Message format:</label>
+  <select ng-model="HipchatMessageFormat" ng-required="true">
+    <option value="text" selected="selected">text</option>
+    <option value="html">html</option>
+  </select>
+</div>

@@ -8,6 +8,7 @@ object HipChatNotificationTask {
   val NOTIFICATION_TYPE = "NotificationType"
   val MESSAGE = "HipchatMessage"
   val ROOM = "HipchatRoom"
+  val MESSAGE_FORMAT = "HipchatMessageFormat"
 }
 
 @Extension
@@ -20,6 +21,7 @@ class HipChatNotificationTask extends Task {
     config.addProperty(NOTIFICATION_TYPE).withDefault("other")
     config.addProperty(MESSAGE)
     config.addProperty(ROOM)
+    config.addProperty(MESSAGE_FORMAT)
     config
   }
 

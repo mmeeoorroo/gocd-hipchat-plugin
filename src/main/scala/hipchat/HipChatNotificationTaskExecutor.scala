@@ -46,6 +46,7 @@ class HipChatNotificationTaskExecutor extends TaskExecutor {
     val token = getToken()
 
     val roomName = Option(taskConfig.getValue(HipChatNotificationTask.ROOM)).filterNot(_.trim.isEmpty).getOrElse(throw new Exception("HipChat room not found"))
+    val msgFormat = Option(taskConfig.getValue(HipChatNotificationTask.MESSAGE)).filterNot(_.trim.isEmpty).getOrElse("text")
 
     val buildUrl: Option[String] = {
       val envVars = taskContext.environment.asMap.asScala
@@ -79,14 +80,14 @@ class HipChatNotificationTaskExecutor extends TaskExecutor {
         case "success" =>
           ("color" -> "green") ~
             ("message" -> replaceEnvVars(msg.getOrElse(defaultPassed), environmentVars)) ~
-            ("message_format" -> "text")
+            ("message_format" -> msgFormat)
         case "failure" =>
           ("color" -> "red") ~
             ("message" -> replaceEnvVars(msg.getOrElse(defaultFailed), environmentVars)) ~
-            ("message_format" -> "text")
+            ("message_format" -> msgFormat)
         case _ =>
           ("message" -> replaceEnvVars(msg.getOrElse(defaultOther), environmentVars)) ~
-            ("message_format" -> "text")
+            ("message_format" -> msgFormat)
       }
     }
 

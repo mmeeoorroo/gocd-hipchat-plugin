@@ -21,7 +21,7 @@ class HipChatNotificationTask extends Task {
     config.addProperty(NOTIFICATION_TYPE).withDefault("other")
     config.addProperty(MESSAGE)
     config.addProperty(ROOM)
-    config.addProperty(MESSAGE_FORMAT)
+    config.addProperty(MESSAGE_FORMAT).withDefault("text")
     config
   }
 

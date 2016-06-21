@@ -37,7 +37,8 @@ class HipChatNotificationTaskExecutor extends TaskExecutor {
       notifyHipchat(taskConfig, taskContext)
     } catch {
       case e: Exception =>
-        ExecutionResult.failure("Failed to notify hipchat", e)
+        taskContext.console.printLine("Failed to notify HipChat")
+        ExecutionResult.success("Failed to notify HipChat")
     }
   }
 
@@ -82,14 +83,18 @@ class HipChatNotificationTaskExecutor extends TaskExecutor {
         case "success" =>
           ("color" -> "green") ~
             ("message" -> replaceEnvVars(msg.getOrElse(defaultPassed), environmentVars)) ~
-            ("message_format" -> "text")
+            ("message_format" -> "html") ~
+            ("notify" -> "true")
         case "failure" =>
           ("color" -> "red") ~
             ("message" -> replaceEnvVars(msg.getOrElse(defaultFailed), environmentVars)) ~
-            ("message_format" -> "text")
+            ("message_format" -> "html") ~
+            ("notify" -> "true")
         case _ =>
-          ("message" -> replaceEnvVars(msg.getOrElse(defaultOther), environmentVars)) ~
-            ("message_format" -> "text")
+          ("color" -> "yellow") ~
+            ("message" -> replaceEnvVars(msg.getOrElse(defaultOther), environmentVars)) ~
+            ("message_format" -> "html") ~
+            ("notify" -> "true")
       }
     }
 
@@ -103,7 +108,8 @@ class HipChatNotificationTaskExecutor extends TaskExecutor {
     if (hipchat.code == 204) {
       ExecutionResult.success("Hipchat notified")
     } else {
-      ExecutionResult.failure(s"Hipchat notification failed (${hipchat.code}): ${hipchat.body}")
+      taskContext.console.printLine(s"Hipchat notification failed (${hipchat.code}): ${hipchat.body}")
+      ExecutionResult.success(s"Hipchat notification failed (${hipchat.code}): ${hipchat.body}")
     }
   }
 }

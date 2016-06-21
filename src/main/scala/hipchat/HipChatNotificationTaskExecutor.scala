@@ -11,7 +11,8 @@ import scalaj.http._
 import collection.JavaConverters._
 
 object HipChatNotificationTaskExecutor {
-  val BASE_URL = "GO_BASE_URL"
+  val AUTH_TOKEN = "HIPCHAT_AUTH_TOKEN"
+  val BASE_URL = "GO_SERVER_DASHBOARD_URL"
   val PIPELINE_NAME = "GO_PIPELINE_NAME"
   val BUILD_NUMBER = "GO_PIPELINE_COUNTER"
   val SERVER_URL = "GO_SERVER_URL"
@@ -43,7 +44,7 @@ class HipChatNotificationTaskExecutor extends TaskExecutor {
   private def notifyHipchat(taskConfig: TaskConfig, taskContext: TaskExecutionContext): ExecutionResult = {
 
     //todo: fail sbt build if not found
-    val token = getToken()
+    //val token = getToken()
 
     val roomName = Option(taskConfig.getValue(HipChatNotificationTask.ROOM)).filterNot(_.trim.isEmpty).getOrElse(throw new Exception("HipChat room not found"))
 
@@ -65,6 +66,8 @@ class HipChatNotificationTaskExecutor extends TaskExecutor {
     val environmentVars = buildUrl.map { url =>
       systemEnvironmentVars.updated("BUILD_URL", url)
     } getOrElse systemEnvironmentVars
+
+    val token = environmentVars.get(AUTH_TOKEN).getOrElse(null)
 
     val notificationType = taskConfig.getValue(HipChatNotificationTask.NOTIFICATION_TYPE)
 
@@ -92,7 +95,8 @@ class HipChatNotificationTaskExecutor extends TaskExecutor {
 
     taskContext.console.printLine(s"Sending notification to $roomName: $msg")
 
-    val hipchat = Http(s"http://api.hipchat.com/v2/room/$roomName/notification").header("Authorization", s"Bearer $token")
+    val hipchat = Http(s"http://api.hipchat.com/v2/room/$roomName/notification")
+      .header("Authorization", s"Bearer $token")
       .header("content-type", "application/json")
       .postData(compact(render(hipchatMsg))).asString
 

@@ -8,6 +8,7 @@ object HipChatNotificationTask {
   val NOTIFICATION_TYPE = "NotificationType"
   val MESSAGE = "HipchatMessage"
   val ROOM = "HipchatRoom"
+  val ROOM_KEY = "HipchatRoomKey"
   val MESSAGE_FORMAT = "HipchatMessageFormat"
 }
 
@@ -21,6 +22,7 @@ class HipChatNotificationTask extends Task {
     config.addProperty(NOTIFICATION_TYPE).withDefault("other")
     config.addProperty(MESSAGE)
     config.addProperty(ROOM)
+    config.addProperty(ROOM_KEY)
     config.addProperty(MESSAGE_FORMAT).withDefault("text")
     config
   }
@@ -28,7 +30,7 @@ class HipChatNotificationTask extends Task {
   override def executor() = new HipChatNotificationTaskExecutor()
 
   override def view(): TaskView = new TaskView {
-    val displayValue = "Hipchat notification"
+    val displayValue = "HipChat Notification"
 
     def template() = {
       try {
@@ -43,9 +45,11 @@ class HipChatNotificationTask extends Task {
     val result = new ValidationResult()
     val msg = Option(configuration.getValue(MESSAGE))
     val room = Option(configuration.getValue(ROOM))
+    val roomKey = Option(configuration.getValue(ROOM_KEY))
 
     msg.filter(_.length > 10000).foreach(_ => result.addError(new ValidationError(MESSAGE, "Message must be less than 10k chars")))
     room.filter(_.trim.isEmpty).foreach(_ => result.addError(new ValidationError(ROOM, "Room cannot be empty")))
+    roomKey.filter(_.trim.isEmpty).foreach(_ => result.addError(new ValidationError(ROOM_KEY, "Room Key cannot be empty")))
     result
   }
 

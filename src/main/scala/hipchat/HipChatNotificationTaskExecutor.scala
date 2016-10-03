@@ -7,18 +7,23 @@ import org.json4s.JsonDSL._
 import org.json4s.native.JsonMethods._
 import scala.io.Source
 import scala.util.Try
+import org.streum.configrity.Configuration
+
+import scala.collection.JavaConverters._
 import scalaj.http._
 import collection.JavaConverters._
 
 object HipChatNotificationTaskExecutor {
-  val BASE_URL = "GO_BASE_URL"
+  val AUTH_TOKEN = "HIPCHAT_AUTH_TOKEN"
+  val BASE_URL = "GO_SERVER_DASHBOARD_URL"
   val PIPELINE_NAME = "GO_PIPELINE_NAME"
   val BUILD_NUMBER = "GO_PIPELINE_COUNTER"
   val SERVER_URL = "GO_SERVER_URL"
   val STAGE_NAME = "GO_STAGE_NAME"
   val STAGE_NUMBER = "GO_STAGE_COUNTER"
 
-  def getToken() = Try(Source.fromURL(getClass.getResource("/token.txt")).getLines.toList(0)).getOrElse(throw new FileNotFoundException("HipChat token not found"))
+  val config = Configuration.load(System.getProperty("user.home") + "/.hipchat")
+  val hipchatServer = config[String]("hipchat_server")
 
   def replaceEnvVars(msg: String, vars: Map[String, String]): String = {
     val regexes = vars.collect { case (varName, value) => ((raw"\$$\{?" + varName + raw"\}?").r, value) }
@@ -36,14 +41,16 @@ class HipChatNotificationTaskExecutor extends TaskExecutor {
       notifyHipchat(taskConfig, taskContext)
     } catch {
       case e: Exception =>
-        ExecutionResult.failure("Failed to notify hipchat", e)
+        taskContext.console.printLine("Failed to notify HipChat")
+        ExecutionResult.success("Failed to notify HipChat")
     }
   }
 
   private def notifyHipchat(taskConfig: TaskConfig, taskContext: TaskExecutionContext): ExecutionResult = {
 
     //todo: fail sbt build if not found
-    val token = getToken()
+    //val token = getToken()
+    val token = Option(taskConfig.getValue(HipChatNotificationTask.ROOM_KEY)).filterNot(_.trim.isEmpty).getOrElse(throw new Exception("Room API Key not found"))
 
     val systemEnvironmentVars = taskContext.environment.asMap.asScala.toMap
 
@@ -67,6 +74,8 @@ class HipChatNotificationTaskExecutor extends TaskExecutor {
       systemEnvironmentVars.updated("BUILD_URL", url)
     } getOrElse systemEnvironmentVars
 
+    val token = environmentVars.get(AUTH_TOKEN).getOrElse(null)
+
     val notificationType = taskConfig.getValue(HipChatNotificationTask.NOTIFICATION_TYPE)
 
     val msg = Option(taskConfig.getValue(HipChatNotificationTask.MESSAGE)).filterNot(_.trim.isEmpty)
@@ -80,27 +89,33 @@ class HipChatNotificationTaskExecutor extends TaskExecutor {
         case "success" =>
           ("color" -> "green") ~
             ("message" -> replaceEnvVars(msg.getOrElse(defaultPassed), environmentVars)) ~
-            ("message_format" -> msgFormat)
+            ("message_format" -> "msgFormat") ~
+            ("notify" -> "true")
         case "failure" =>
           ("color" -> "red") ~
             ("message" -> replaceEnvVars(msg.getOrElse(defaultFailed), environmentVars)) ~
-            ("message_format" -> msgFormat)
+            ("message_format" -> "msgFormat") ~
+            ("notify" -> "true")
         case _ =>
-          ("message" -> replaceEnvVars(msg.getOrElse(defaultOther), environmentVars)) ~
-            ("message_format" -> msgFormat)
+          ("color" -> "yellow") ~
+            ("message" -> replaceEnvVars(msg.getOrElse(defaultOther), environmentVars)) ~
+            ("message_format" -> "msgFormat") ~
+            ("notify" -> "true")
       }
     }
 
     taskContext.console.printLine(s"Sending notification to $roomName: $msg")
 
-    val hipchat = Http(s"http://api.hipchat.com/v2/room/$roomName/notification").header("Authorization", s"Bearer $token")
+    val hipchat = Http(s"$hipchatServer/v2/room/$roomName/notification")
+      .header("Authorization", s"Bearer $token")
       .header("content-type", "application/json")
       .postData(compact(render(hipchatMsg))).asString
 
     if (hipchat.code == 204) {
       ExecutionResult.success("Hipchat notified")
     } else {
-      ExecutionResult.failure(s"Hipchat notification failed (${hipchat.code}): ${hipchat.body}")
+      taskContext.console.printLine(s"Hipchat notification failed (${hipchat.code}): ${hipchat.body}")
+      ExecutionResult.success(s"Hipchat notification failed (${hipchat.code}): ${hipchat.body}")
     }
   }
 }

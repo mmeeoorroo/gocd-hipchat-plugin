@@ -1,4 +1,4 @@
-GoCD Hipchat Notification Plugin [![Build Status](https://travis-ci.org/PagerDuty/gocd-hipchat-plugin.svg?branch=master)](https://travis-ci.org/PagerDuty/gocd-hipchat-plugin)
+GoCD Hipchat Notification Plugin [![Build Status](https://travis-ci.org/DrStrangepork/gocd-hipchat-plugin.svg?branch=master)](https://travis-ci.org/DrStrangepork/gocd-hipchat-plugin)
 ================================
 
 Fork from [https://github.com/PagerDuty/gocd-hipchat-plugin/tree/7452a3e8cdcbfe63090cf93291155cc769b21583](https://github.com/PagerDuty/gocd-hipchat-plugin/tree/7452a3e8cdcbfe63090cf93291155cc769b21583)

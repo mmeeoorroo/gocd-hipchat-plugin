@@ -11,7 +11,8 @@ import scalaj.http._
 import collection.JavaConverters._
 
 object HipChatNotificationTaskExecutor {
-  val BASE_URL = "GO_BASE_URL"
+  val AUTH_TOKEN = "HIPCHAT_AUTH_TOKEN"
+  val BASE_URL = "GO_SERVER_DASHBOARD_URL"
   val PIPELINE_NAME = "GO_PIPELINE_NAME"
   val BUILD_NUMBER = "GO_PIPELINE_COUNTER"
   val SERVER_URL = "GO_SERVER_URL"
@@ -36,14 +37,15 @@ class HipChatNotificationTaskExecutor extends TaskExecutor {
       notifyHipchat(taskConfig, taskContext)
     } catch {
       case e: Exception =>
-        ExecutionResult.failure("Failed to notify hipchat", e)
+        taskContext.console.printLine("Failed to notify HipChat")
+        ExecutionResult.success("Failed to notify HipChat")
     }
   }
 
   private def notifyHipchat(taskConfig: TaskConfig, taskContext: TaskExecutionContext): ExecutionResult = {
 
     //todo: fail sbt build if not found
-    val token = getToken()
+    //val token = getToken()
 
     val systemEnvironmentVars = taskContext.environment.asMap.asScala.toMap
 
@@ -67,6 +69,8 @@ class HipChatNotificationTaskExecutor extends TaskExecutor {
       systemEnvironmentVars.updated("BUILD_URL", url)
     } getOrElse systemEnvironmentVars
 
+    val token = environmentVars.get(AUTH_TOKEN).getOrElse(null)
+
     val notificationType = taskConfig.getValue(HipChatNotificationTask.NOTIFICATION_TYPE)
 
     val msg = Option(taskConfig.getValue(HipChatNotificationTask.MESSAGE)).filterNot(_.trim.isEmpty)
@@ -80,27 +84,33 @@ class HipChatNotificationTaskExecutor extends TaskExecutor {
         case "success" =>
           ("color" -> "green") ~
             ("message" -> replaceEnvVars(msg.getOrElse(defaultPassed), environmentVars)) ~
-            ("message_format" -> msgFormat)
+            ("message_format" -> "msgFormat") ~
+            ("notify" -> "true")
         case "failure" =>
           ("color" -> "red") ~
             ("message" -> replaceEnvVars(msg.getOrElse(defaultFailed), environmentVars)) ~
-            ("message_format" -> msgFormat)
+            ("message_format" -> "msgFormat") ~
+            ("notify" -> "true")
         case _ =>
-          ("message" -> replaceEnvVars(msg.getOrElse(defaultOther), environmentVars)) ~
-            ("message_format" -> msgFormat)
+          ("color" -> "yellow") ~
+            ("message" -> replaceEnvVars(msg.getOrElse(defaultOther), environmentVars)) ~
+            ("message_format" -> "msgFormat") ~
+            ("notify" -> "true")
       }
     }
 
     taskContext.console.printLine(s"Sending notification to $roomName: $msg")
 
-    val hipchat = Http(s"http://api.hipchat.com/v2/room/$roomName/notification").header("Authorization", s"Bearer $token")
+    val hipchat = Http(s"http://api.hipchat.com/v2/room/$roomName/notification")
+      .header("Authorization", s"Bearer $token")
       .header("content-type", "application/json")
       .postData(compact(render(hipchatMsg))).asString
 
     if (hipchat.code == 204) {
       ExecutionResult.success("Hipchat notified")
     } else {
-      ExecutionResult.failure(s"Hipchat notification failed (${hipchat.code}): ${hipchat.body}")
+      taskContext.console.printLine(s"Hipchat notification failed (${hipchat.code}): ${hipchat.body}")
+      ExecutionResult.success(s"Hipchat notification failed (${hipchat.code}): ${hipchat.body}")
     }
   }
 }

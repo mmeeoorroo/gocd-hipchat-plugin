@@ -28,7 +28,7 @@ class HipChatNotificationTask extends Task {
   override def executor() = new HipChatNotificationTaskExecutor()
 
   override def view(): TaskView = new TaskView {
-    val displayValue = "Hipchat notification"
+    val displayValue = "HipChat Notification"
 
     def template() = {
       try {

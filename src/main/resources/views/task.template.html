@@ -24,3 +24,8 @@
     <option value="html">html</option>
   </select>
 </div>
+<div class="form_item_block">
+    <label>API Key for Room:</label>
+    <input type="text" ng-model="HipchatRoomKey"/>
+    <span class="form_error" ng-show="GOINPUTNAME[HipchatRoomKey].$error.server">{{ GOINPUTNAME[HipchatRoomKey].$error.server }}</span>
+</div>
